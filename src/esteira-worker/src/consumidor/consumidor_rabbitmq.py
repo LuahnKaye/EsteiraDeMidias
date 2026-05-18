@@ -136,7 +136,7 @@ class ConsumidorRabbitMQ:
                         trabalho_banco.status = "FALHOU"
                         trabalho_banco.mensagem_erro = str(erro_processamento)
                         db.commit()
-                        print(f"[*] Status do trabalho atualizado para 'FALHOU' no PostgreSQL.")
+                        print("[*] Status do trabalho atualizado para 'FALHOU' no PostgreSQL.")
                 except Exception as erro_interno_db:
                     print(f"[!] Erro crítico ao atualizar status de falha no banco: {str(erro_interno_db)}")
 
