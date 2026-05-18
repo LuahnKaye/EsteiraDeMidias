@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: esteira-configuracoes
+  namespace: esteira-midias
+data:
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"
+  RABBITMQ_HOST: "rabbitmq-service"
+  PASTA_TEMPORARIA: "/app/armazenamento_temporario"
+  PASTA_DEFINITIVA: "/app/armazenamento_definitivo"
+  DATABASE_HOST: "postgres-service"
+  DATABASE_PORT: "5432"

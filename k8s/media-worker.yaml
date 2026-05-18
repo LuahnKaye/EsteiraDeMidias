@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: media-worker
+  namespace: esteira-midias
+spec:
+  replicas: 2 # Escalonado em HA
+  selector:
+    matchLabels:
+      app: media-worker
+  template:
+    metadata:
+      labels:
+        app: media-worker
+    spec:
+      containers:
+        - name: media-worker
+          image: esteira-media-worker:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            # Variáveis do ConfigMap
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: esteira-configuracoes
+                  key: REDIS_HOST
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: esteira-configuracoes
+                  key: REDIS_PORT
+            - name: RABBITMQ_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: esteira-configuracoes
+                  key: RABBITMQ_HOST
+            - name: DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: esteira-configuracoes
+                  key: DATABASE_HOST
+            - name: DATABASE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: esteira-configuracoes
+                  key: DATABASE_PORT
+            - name: PASTA_TEMPORARIA
+              valueFrom:
+                configMapKeyRef:
+                  name: esteira-configuracoes
+                  key: PASTA_TEMPORARIA
+            - name: PASTA_DEFINITIVA
+              valueFrom:
+                configMapKeyRef:
+                  name: esteira-configuracoes
+                  key: PASTA_DEFINITIVA
+            # Segredos do Secret
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: esteira-segredos
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: esteira-segredos
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: esteira-segredos
+                  key: POSTGRES_DB
+            - name: RABBITMQ_USER
+              valueFrom:
+                secretKeyRef:
+                  name: esteira-segredos
+                  key: RABBITMQ_USER
+            - name: RABBITMQ_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: esteira-segredos
+                  key: RABBITMQ_PASS
+            # Resolução Dinâmica da String de Conexão Postgres
+            - name: DATABASE_URL
+              value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(DATABASE_HOST):$(DATABASE_PORT)/$(POSTGRES_DB)"
+          resources:
+            requests:
+              cpu: 150m
+              memory: 256Mi
+            limits:
+              cpu: 600m
+              memory: 512Mi
+          volumeMounts:
+            - name: armazenamento-temporario
+              mountPath: /app/armazenamento_temporario
+            - name: armazenamento-definitivo
+              mountPath: /app/armazenamento_definitivo
+      volumes:
+        - name: armazenamento-temporario
+          persistentVolumeClaim:
+            claimName: esteira-temporario-pvc
+        - name: armazenamento-definitivo
+          persistentVolumeClaim:
+            claimName: esteira-definitivo-pvc

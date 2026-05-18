@@ -1,0 +1,72 @@
+# ==========================================================================
+# PIPELINE DE INTEGRACAO E ENTREGA CONTINUA (CI/CD) - ESTEIRA DE MIDIAS
+# ==========================================================================
+name: Esteira de Mídias - CI/CD
+
+# Gatilhos de disparo automatizados
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  # Job 1: Validação de Qualidade de Código (Linting)
+  qualidade:
+    name: Validação de Qualidade e Sintaxe
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v3
+
+      - name: Setup do Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Instalação do Linter (Ruff)
+        run: pip install ruff
+
+      - name: Execução do Ruff (Checagem de Sintaxe e Regras pt-br)
+        run: ruff check . --ignore E501 # Ignora apenas limite de caracteres por linha
+
+  # Job 2: Build Check dos Microsserviços Customizados (API, Worker e UI)
+  compilacao:
+    name: Build Check dos Microsserviços
+    runs-on: ubuntu-latest
+    needs: qualidade
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v3
+
+      - name: Inicialização do Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # 2.1. Build Check da API Core FastAPI
+      - name: Compilar Imagem Docker - API Core
+        uses: docker/build-push-action@v4
+        with:
+          context: ./src/esteira-api
+          file: ./src/esteira-api/Dockerfile
+          push: false # Apenas valida se compila perfeitamente sem erros físicos
+          tags: esteira-media-api:latest
+
+      # 2.2. Build Check do Worker Processador
+      - name: Compilar Imagem Docker - Esteira Worker
+        uses: docker/build-push-action@v4
+        with:
+          context: ./src/esteira-worker
+          file: ./src/esteira-worker/Dockerfile
+          push: false
+          tags: esteira-media-worker:latest
+
+      # 2.3. Build Check do Frontend SPA
+      - name: Compilar Imagem Docker - Frontend UI
+        uses: docker/build-push-action@v4
+        with:
+          context: ./src/esteira-ui
+          file: ./src/esteira-ui/Dockerfile
+          push: false
+          tags: esteira-media-ui:latest

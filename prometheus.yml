@@ -1,0 +1,17 @@
+global:
+  scrape_interval: 15s     # Intervalo padrão de coleta de métricas (a cada 15 segundos)
+  evaluation_interval: 15s # Intervalo para avaliar regras de alerta
+
+# Definição dos alvos de monitoramento (Jobs de Scraping)
+scrape_configs:
+  # Job 1: Monitoramento do próprio servidor Prometheus
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Job 2: Monitoramento da API Principal (FastAPI) da Esteira de Mídias
+  # A API FastAPI exportará as métricas sob o padrão do Prometheus no endpoint /metricas
+  - job_name: 'esteira-api'
+    metrics_path: '/metricas'
+    static_configs:
+      - targets: ['esteira-api:8000'] # Aponta para o nome do container da API na rede Docker

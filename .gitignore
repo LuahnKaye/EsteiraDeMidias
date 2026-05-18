@@ -1,0 +1,40 @@
+# ==========================================================================
+# EXCLUSÕES DE CONTROLE DE VERSÃO - ESTEIRA DE MÍDIAS
+# ==========================================================================
+
+# Arquivos de Compilação do Python e Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+.ruff_cache/
+
+# Ambientes Virtuais de Desenvolvimento
+.venv/
+venv/
+ENV/
+env/
+
+# Configurações de IDEs (VSCode / PyCharm)
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# Banco de Dados Temporário e Arquivos de Sistema
+*.db
+*.sqlite3
+.DS_Store
+Thumbs.db
+
+# Pastas de Armazenamento Local Dinâmicas (Mapeadas no Compose)
+# Evitamos subir mídias locais de teste do banco de dados persistido
+src/esteira-ui/src/assets/
+armazenamento_temporario/
+armazenamento_definitivo/

@@ -1,0 +1,171 @@
+version: '3.8'
+
+services:
+  # Banco de Dados Relacional - PostgreSQL
+  # Armazena as tabelas 'trabalhos_esteira' e 'assets_processados'
+  postgres-db:
+    image: postgres:15-alpine
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: esteira_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - dados_postgres:/var/lib/postgresql/data
+    networks:
+      - rede_esteira
+    restart: always
+
+  # Banco de Dados em Memória - Redis
+  # Responsável pelo controle de Rate Limiting (limite de taxa) da API Core
+  redis-cache:
+    image: redis:7-alpine
+    container_name: redis-cache
+    ports:
+      - "6379:6379"
+    volumes:
+      - dados_redis:/data
+    networks:
+      - rede_esteira
+    restart: always
+
+  # Broker de Mensageria - RabbitMQ
+  # Gerencia a fila assíncrona 'fila_trabalhos_esteira' para processamento de mídias
+  rabbitmq-broker:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq-broker
+    ports:
+      - "5672:5672"      # Porta de tráfego de mensagens AMQP
+      - "15672:15672"    # Porta de acesso ao Painel Web Admin
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - dados_rabbitmq:/var/lib/rabbitmq
+    networks:
+      - rede_esteira
+    restart: always
+
+  # Telemetria e Coleta de Métricas - Prometheus
+  # Realiza a raspagem (scraping) periódica do endpoint /metricas da API
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - dados_prometheus:/prometheus
+    networks:
+      - rede_esteira
+    restart: always
+    depends_on:
+      - postgres-db
+
+  # Painel de Visualização de Métricas - Grafana
+  # Consome a base de dados do Prometheus e exibe painéis (dashboards) de saúde operacional
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3001:3000"      # Porta local exposta na 3001 para não colidir com o frontend na 3000
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - dados_grafana:/var/lib/grafana
+    networks:
+      - rede_esteira
+    restart: always
+    depends_on:
+      - prometheus
+
+  # API Principal - Core HTTP (FastAPI)
+  # Recebe uploads, valida assinaturas de imagens, aplica rate limit e enfileira trabalhos
+  media-api:
+    build:
+      context: ./src/esteira-api
+      dockerfile: Dockerfile
+    container_name: media-api
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres-db:5432/esteira_db
+      - REDIS_HOST=redis-cache
+      - REDIS_PORT=6379
+      - RABBITMQ_HOST=rabbitmq-broker
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASS=guest
+      - PASTA_TEMPORARIA=/app/armazenamento_temporario
+    volumes:
+      - dados_temporarios:/app/armazenamento_temporario
+    networks:
+      - rede_esteira
+    restart: always
+    depends_on:
+      - postgres-db
+      - redis-cache
+      - rabbitmq-broker
+
+  # Processador de Mídias Assíncrono - Media Worker (Event-Driven)
+  # Consome eventos da fila AMQP, otimiza imagens com Pillow e atualiza status no banco
+  media-worker:
+    build:
+      context: ./src/esteira-worker
+      dockerfile: Dockerfile
+    container_name: media-worker
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres-db:5432/esteira_db
+      - RABBITMQ_HOST=rabbitmq-broker
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASS=guest
+      - PASTA_TEMPORARIA=/app/armazenamento_temporario
+      - PASTA_DEFINITIVA=/app/armazenamento_definitivo
+    volumes:
+      - dados_temporarios:/app/armazenamento_temporario
+      - dados_definitivos:/app/armazenamento_definitivo
+    networks:
+      - rede_esteira
+    restart: always
+    depends_on:
+      - postgres-db
+      - rabbitmq-broker
+
+  # Interface do Usuário - Frontend SPA (Nginx Alpine)
+  # Console administrativo do lojista para envio e monitoramento em tempo real
+  media-ui:
+    build:
+      context: ./src/esteira-ui
+      dockerfile: Dockerfile
+    container_name: media-ui
+    ports:
+      - "3000:80"
+    volumes:
+      - dados_definitivos:/app/armazenamento_definitivo
+    networks:
+      - rede_esteira
+    restart: always
+    depends_on:
+      - media-api
+      - media-worker
+
+volumes:
+  dados_postgres:
+    driver: local
+  dados_redis:
+    driver: local
+  dados_rabbitmq:
+    driver: local
+  dados_prometheus:
+    driver: local
+  dados_grafana:
+    driver: local
+  dados_temporarios:
+    driver: local
+  dados_definitivos:
+    driver: local
+
+networks:
+  rede_esteira:
+    driver: bridge

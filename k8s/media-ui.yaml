@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: media-ui
+  namespace: esteira-midias
+spec:
+  replicas: 2 # Alta disponibilidade
+  selector:
+    matchLabels:
+      app: media-ui
+  template:
+    metadata:
+      labels:
+        app: media-ui
+    spec:
+      containers:
+        - name: media-ui
+          image: esteira-media-ui:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          volumeMounts:
+            - name: armazenamento-definitivo
+              mountPath: /app/armazenamento_definitivo
+      volumes:
+        - name: armazenamento-definitivo
+          persistentVolumeClaim:
+            claimName: esteira-definitivo-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: media-ui-service
+  namespace: esteira-midias
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: media-ui

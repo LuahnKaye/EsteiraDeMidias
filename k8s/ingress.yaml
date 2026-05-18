@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: esteira-ingress
+  namespace: esteira-midias
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/client-max-body-size: "10m" # Limite de tamanho de upload no Ingress (10MB)
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - host: esteira.magalu.cloud # Endereço fictício de produção
+      http:
+        paths:
+          # Rota padrão: Interface do Lojista (Frontend SPA)
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: media-ui-service
+                port:
+                  number: 80
+          # Rota da API Principal (Core API FastAPI)
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: media-api-service
+                port:
+                  number: 8000

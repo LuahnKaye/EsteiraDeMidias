@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Console de Mídias - Esteira de Mídias</title>
+    
+    <!-- Google Fonts: Fonte Outfit de alta elegância premium -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Link para o estilo CSS premium -->
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="fundo-gradiente"></div>
+
+    <div class="conteiner-app">
+        <!-- Cabeçalho Principal -->
+        <header class="cabecalho-principal">
+            <div class="marca">
+                <span class="icone-marca">⚡</span>
+                <h1>Esteira de Mídias</h1>
+            </div>
+            <p class="subtitulo">Console de Processamento e Otimização Assíncrona de Imagens</p>
+        </header>
+
+        <!-- Seção 1: Área de Upload (Drag & Drop) -->
+        <section class="secao-upload card-glass">
+            <div class="cabecalho-card">
+                <h2>Otimizar Novas Imagens</h2>
+                <p>Arraste e solte seus arquivos ou clique na área abaixo. Limite de até 5 imagens simultâneas de no máximo 5MB nos formatos PNG ou JPEG.</p>
+            </div>
+            
+            <div id="dropzone" class="area-dropzone">
+                <input type="file" id="input-arquivo" multiple accept="image/png, image/jpeg" style="display: none;">
+                <div class="conteudo-dropzone">
+                    <svg class="nuvem-upload" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                    </svg>
+                    <p class="texto-principal">Arraste múltiplos arquivos ou <span class="destaque-clique">clique para selecionar</span></p>
+                    <p class="texto-suporte">Formatos aceitos: PNG, JPEG ou JPG (Máx. 5MB por imagem)</p>
+                </div>
+            </div>
+
+            <!-- Toast de Alerta Dinâmico para Mensagens do Cliente -->
+            <div id="area-alertas" class="area-alertas"></div>
+        </section>
+
+        <!-- Seção 2: Painel de Monitoramento (Tabela de Jobs) -->
+        <section class="secao-monitoramento card-glass">
+            <div class="cabecalho-card flex-header">
+                <div>
+                    <h2>Painel de Monitoramento</h2>
+                    <p>Acompanhe em tempo real os status das suas mídias otimizadas na esteira</p>
+                </div>
+                <div class="indicador-conexao">
+                    <span class="ponto-verde"></span>
+                    <span class="texto-conexao">Conexão Ativa</span>
+                </div>
+            </div>
+
+            <!-- Tabela de Rastreamento de Jobs -->
+            <div class="tabela-responsiva">
+                <table class="tabela-jobs">
+                    <thead>
+                        <tr>
+                            <th>Nome do Arquivo</th>
+                            <th>ID do Trabalho (UUID)</th>
+                            <th>Status da Esteira</th>
+                            <th>Imagens Otimizadas (WebP)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-jobs">
+                        <!-- Caso não haja nenhum job criado -->
+                        <tr id="linha-vazia">
+                            <td colspan="4" class="tabela-mensagem-vazia">
+                                <div class="conteudo-vazio">
+                                    <span class="icone-vazio">📥</span>
+                                    <p>Nenhuma imagem na esteira de processamento no momento.</p>
+                                    <p class="sub-vazio">Faça o upload de arquivos acima para vê-los aqui em tempo real.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- Script JavaScript reativo -->
+    <script src="index.js"></script>
+</body>
+</html>

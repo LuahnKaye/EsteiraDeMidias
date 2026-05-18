@@ -1,0 +1,57 @@
+# 1. Volume Persistente Compartilhado para Mídias Temporárias (ReadWriteMany)
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: esteira-temporario-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: esteira-shared-storage
+  nfs:
+    path: /export/temporario
+    server: nfs-server-service.esteira-infra.svc.cluster.local
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: esteira-temporario-pvc
+  namespace: esteira-midias
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: esteira-shared-storage
+---
+# 2. Volume Persistente Compartilhado para Mídias Definitivas Otimizadas (ReadWriteMany)
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: esteira-definitivo-pv
+spec:
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: esteira-shared-storage
+  nfs:
+    path: /export/definitivo
+    server: nfs-server-service.esteira-infra.svc.cluster.local
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: esteira-definitivo-pvc
+  namespace: esteira-midias
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: esteira-shared-storage

@@ -1,0 +1,121 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: media-api
+  namespace: esteira-midias
+spec:
+  replicas: 2 # Alta disponibilidade
+  selector:
+    matchLabels:
+      app: media-api
+  template:
+    metadata:
+      labels:
+        app: media-api
+    spec:
+      containers:
+        - name: media-api
+          image: esteira-media-api:latest # Em produção seria o registry (ex: gcr.io/projeto/esteira-media-api)
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          env:
+            # Variáveis do ConfigMap
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: esteira-configuracoes
+                  key: REDIS_HOST
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: esteira-configuracoes
+                  key: REDIS_PORT
+            - name: RABBITMQ_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: esteira-configuracoes
+                  key: RABBITMQ_HOST
+            - name: DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: esteira-configuracoes
+                  key: DATABASE_HOST
+            - name: DATABASE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: esteira-configuracoes
+                  key: DATABASE_PORT
+            - name: PASTA_TEMPORARIA
+              valueFrom:
+                configMapKeyRef:
+                  name: esteira-configuracoes
+                  key: PASTA_TEMPORARIA
+            # Segredos do Secret
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: esteira-segredos
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: esteira-segredos
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: esteira-segredos
+                  key: POSTGRES_DB
+            - name: RABBITMQ_USER
+              valueFrom:
+                secretKeyRef:
+                  name: esteira-segredos
+                  key: RABBITMQ_USER
+            - name: RABBITMQ_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: esteira-segredos
+                  key: RABBITMQ_PASS
+            # Resolução Dinâmica e Criptografada da String de Conexão no Kubernetes
+            - name: DATABASE_URL
+              value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(DATABASE_HOST):$(DATABASE_PORT)/$(POSTGRES_DB)"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 400m
+              memory: 256Mi
+          # Sondas de integridade operacional
+          livenessProbe:
+            httpGet:
+              path: /api/v1/midias/status/saude
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /api/v1/midias/status/saude
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          volumeMounts:
+            - name: armazenamento-temporario
+              mountPath: /app/armazenamento_temporario
+      volumes:
+        - name: armazenamento-temporario
+          persistentVolumeClaim:
+            claimName: esteira-temporario-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: media-api-service
+  namespace: esteira-midias
+spec:
+  ports:
+    - port: 8000
+      targetPort: 8000
+  selector:
+    app: media-api
