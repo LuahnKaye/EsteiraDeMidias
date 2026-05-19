@@ -12,16 +12,16 @@ O ecossistema é composto por microsserviços especializados que se comunicam de
 
 ```mermaid
 graph TD
-    Cliente["Lojista (Interface SPA)"] -->|1. Envia Imagem| API["API Core (FastAPI)"]
-    API -->|2. Valida Rate Limit| Redis["Rate Limit Cache (Redis + Lua)"]
+    Cliente["Lojista Interface SPA"] -->|1. Envia Imagem| API["API Core FastAPI"]
+    API -->|2. Valida Rate Limit| Redis["Rate Limit Cache Redis e Lua"]
     API -->|3. Valida Magic Bytes| API
-    API -->|4. Enfileira Trabalho (HTTP 202)| Broker["Fila AMQP (RabbitMQ)"]
-    Broker -->|5. Consome Assincronamente| Worker["Processador Worker (Python)"]
-    Worker -->|6. Otimiza Imagem (Pillow)| Storage["Armazenamento Definitivo"]
-    Worker -->|7. Salva Sucesso & Metadados| DB["Banco de Dados (PostgreSQL)"]
-    Worker -->|8. Confirma Sucesso (Manual ACK)| Broker
-    Cliente -->|9. Pooling Reativo (2s)| API
-    Cliente -->|10. Download WebP Direto| Nginx["Servidor Web (Nginx UI)"]
+    API -->|4. Enfileira Trabalho HTTP 202| Broker["Fila AMQP RabbitMQ"]
+    Broker -->|5. Consome Assincronamente| Worker["Processador Worker Python"]
+    Worker -->|6. Otimiza Imagem Pillow| Storage["Armazenamento Definitivo"]
+    Worker -->|7. Salva Sucesso e Metadados| DB["Banco de Dados PostgreSQL"]
+    Worker -->|8. Confirma Sucesso Manual ACK| Broker
+    Cliente -->|9. Pooling Reativo 2s| API
+    Cliente -->|10. Download WebP Direto| Nginx["Servidor Web Nginx UI"]
 ```
 
 ### 📦 Componentes do Ecossistema:
