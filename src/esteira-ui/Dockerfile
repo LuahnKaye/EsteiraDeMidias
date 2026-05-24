@@ -1,14 +1,15 @@
+# Stage 1: Build do React com Vite
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+
+# Stage 2: Nginx Servindo os Estáticos
 FROM nginx:1.25-alpine
-
-# Remove o arquivo de configuração padrão do Nginx
 RUN rm /etc/nginx/conf.d/default.conf
-
-# Copia a nossa configuração customizada otimizada
 COPY nginx.conf /etc/nginx/conf.d/
-
-# Copia o código estático do Frontend SPA (HTML, CSS e JS)
-COPY src/ /usr/share/nginx/html/
-
+COPY --from=builder /app/dist /usr/share/nginx/html/
 EXPOSE 80
-
 CMD ["nginx", "-g", "daemon off;"]

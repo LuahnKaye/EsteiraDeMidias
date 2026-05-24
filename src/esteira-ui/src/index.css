@@ -1,489 +1,52 @@
-/* ==========================================================================
-   DESIGN SYSTEM - ESTEIRA DE MÍDIAS (TEMA ESCURO PREMIUM / SLEEK DARK MODE)
-   ========================================================================== */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* 1. Reset Global e Variáveis de Estilo */
-:root {
-    --cor-fundo: #0B0F19;
-    --cor-card-glass: rgba(20, 26, 44, 0.55);
-    --cor-borda-glass: rgba(255, 255, 255, 0.08);
-    --cor-borda-foco: rgba(59, 130, 246, 0.4);
-    
-    /* Cores do Sistema */
-    --cor-texto-primario: #F3F4F6;
-    --cor-texto-secundario: #9CA3AF;
-    --cor-texto-suporte: #6B7280;
-    
-    /* Gradientes */
-    --gradiente-primario: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
-    --gradiente-dropzone-drag: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
-    
-    /* Badges de Status (Cores Harmoniosas) */
-    --status-pendente: #3B82F6;
-    --status-processando: #F59E0B;
-    --status-concluido: #10B981;
-    --status-falhou: #EF4444;
+@layer base {
+  body {
+    @apply bg-slate-900 text-slate-100 font-outfit min-h-screen m-0 p-0 overflow-x-hidden;
+  }
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Outfit', sans-serif;
-    background-color: var(--cor-fundo);
-    color: var(--cor-texto-primario);
-    min-height: 100vh;
-    overflow-x: hidden;
-    position: relative;
-    display: flex;
-    justify-content: center;
-    padding: 2.5rem 1.5rem;
-}
-
-/* 2. Fundo Gradiente Dinâmico e Desfoque */
 .fundo-gradiente {
-    position: absolute;
-    top: -10%;
-    left: -10%;
-    width: 120%;
-    height: 120%;
-    background: radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 40%);
-    z-index: -1;
-    pointer-events: none;
+  @apply fixed inset-0 z-[-1] bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900;
 }
 
-/* 3. Estrutura do Contêiner Principal */
 .conteiner-app {
-    width: 100%;
-    max-width: 1000px;
-    display: flex;
-    flex-direction: column;
-    gap: 2.5rem;
-    z-index: 1;
+  @apply max-w-5xl mx-auto p-4 md:p-8 flex flex-col gap-8;
 }
 
-/* 4. Cabeçalho */
-.cabecalho-principal {
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.marca {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.8rem;
-}
-
-.icone-marca {
-    font-size: 2rem;
-    filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.6));
-}
-
-.cabecalho-principal h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    letter-spacing: -0.05em;
-    background: var(--gradiente-primario);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 2px 10px rgba(0,0,0,0.5));
-}
-
-.subtitulo {
-    font-size: 1.1rem;
-    color: var(--cor-texto-secundario);
-    font-weight: 300;
-}
-
-/* 5. Cartão Glassmorphism (Premium) */
 .card-glass {
-    background: var(--cor-card-glass);
-    border: 1px solid var(--cor-borda-glass);
-    border-radius: 20px;
-    padding: 2rem;
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-    transition: transform 0.3s ease, border-color 0.3s ease;
+  @apply bg-slate-800/40 backdrop-blur-xl border border-slate-700/50 shadow-2xl rounded-2xl p-6 transition-all;
 }
 
-.card-glass:hover {
-    border-color: rgba(255, 255, 255, 0.12);
-}
-
-.cabecalho-card {
-    margin-bottom: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-}
-
-.cabecalho-card h2 {
-    font-size: 1.4rem;
-    font-weight: 600;
-    letter-spacing: -0.02em;
-}
-
-.cabecalho-card p {
-    font-size: 0.95rem;
-    color: var(--cor-texto-secundario);
-    line-height: 1.5;
-}
-
-/* Flexbox Header para Monitoramento */
-.flex-header {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--cor-borda-glass);
-    padding-bottom: 1.2rem;
-    margin-bottom: 1.2rem;
-}
-
-.indicador-conexao {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: rgba(16, 185, 129, 0.08);
-    border: 1px solid rgba(16, 185, 129, 0.15);
-    padding: 0.4rem 0.8rem;
-    border-radius: 50px;
-}
-
-.ponto-verde {
-    width: 8px;
-    height: 8px;
-    background-color: var(--cor-concluido, #10B981);
-    border-radius: 50%;
-    box-shadow: 0 0 10px #10B981;
-    animation: pulsar 2s infinite;
-}
-
-.texto-conexao {
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: #10B981;
-}
-
-/* 6. Dropzone (Drag and Drop) */
-.area-dropzone {
-    border: 2px dashed rgba(255, 255, 255, 0.15);
-    border-radius: 16px;
-    padding: 3rem 2rem;
-    text-align: center;
-    cursor: pointer;
-    background: rgba(255, 255, 255, 0.01);
-    transition: all 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.area-dropzone:hover {
-    border-color: #3B82F6;
-    background: rgba(59, 130, 246, 0.02);
-}
-
-.area-dropzone.arrastando {
-    border-color: #8B5CF6;
-    background: var(--gradiente-dropzone-drag);
-    transform: scale(1.01);
-}
-
-.conteudo-dropzone {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-}
-
-.nuvem-upload {
-    width: 54px;
-    height: 54px;
-    color: var(--cor-texto-secundario);
-    transition: transform 0.3s ease, color 0.3s ease;
-}
-
-.area-dropzone:hover .nuvem-upload {
-    transform: translateY(-4px);
-    color: #3B82F6;
-}
-
-.texto-principal {
-    font-size: 1.1rem;
-    font-weight: 500;
-}
-
-.destaque-clique {
-    color: #3B82F6;
-    text-decoration: underline;
-    font-weight: 600;
-}
-
-.texto-suporte {
-    font-size: 0.85rem;
-    color: var(--cor-texto-suporte);
-}
-
-/* 7. Toasts e Alertas de Cliente */
-.area-alertas {
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
-    margin-top: 1.2rem;
-    width: 100%;
-}
-
-.alerta-erro {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    background: rgba(239, 68, 68, 0.08);
-    border: 1px solid rgba(239, 68, 68, 0.18);
-    padding: 0.8rem 1.2rem;
-    border-radius: 10px;
-    font-size: 0.9rem;
-    color: #F87171;
-    animation: surgir 0.3s ease-out;
-}
-
-.alerta-erro span {
-    font-size: 1.2rem;
-}
-
-/* 8. Tabela de Jobs Dinâmica */
-.tabela-responsiva {
-    overflow-x: auto;
-    width: 100%;
-}
-
-.tabela-jobs {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: left;
-    font-size: 0.95rem;
-}
-
-.tabela-jobs th {
-    color: var(--cor-texto-secundario);
-    font-weight: 500;
-    padding: 1rem 1.2rem;
-    border-bottom: 1px solid var(--cor-borda-glass);
-}
-
-.tabela-jobs td {
-    padding: 1.2rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-    vertical-align: middle;
-}
-
-.tabela-jobs tbody tr {
-    transition: background 0.3s ease;
-}
-
-.tabela-jobs tbody tr:hover {
-    background: rgba(255, 255, 255, 0.015);
-}
-
-/* Visualizador de Linha Vazia */
-.tabela-mensagem-vazia {
-    text-align: center;
-    padding: 4rem 2rem !important;
-}
-
-.conteudo-vazio {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.6rem;
-}
-
-.icone-vazio {
-    font-size: 2.2rem;
-    opacity: 0.4;
-    margin-bottom: 0.5rem;
-}
-
-.sub-vazio {
-    font-size: 0.85rem;
-    color: var(--cor-texto-suporte);
-}
-
-/* 9. Elementos dinâmicos dos Jobs */
-.nome-arquivo-td {
-    font-weight: 500;
-    max-width: 180px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.uuid-td {
-    font-family: monospace;
-    font-size: 0.85rem;
-    color: var(--cor-texto-secundario);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.copiar-uuid {
-    cursor: pointer;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--cor-borda-glass);
-    padding: 0.2rem 0.4rem;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    transition: all 0.2s ease;
-}
-
-.copiar-uuid:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--cor-texto-primario);
-}
-
-/* Status Badges */
 .badge-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.8rem;
-    font-weight: 600;
-    padding: 0.35rem 0.75rem;
-    border-radius: 50px;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
+  @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium shadow-inner;
 }
-
 .badge-status.pendente {
-    background: rgba(59, 130, 246, 0.08);
-    border: 1px solid rgba(59, 130, 246, 0.2);
-    color: #60A5FA;
+  @apply bg-amber-500/20 text-amber-300 border border-amber-500/30;
 }
-
 .badge-status.processando {
-    background: rgba(245, 158, 11, 0.08);
-    border: 1px solid rgba(245, 158, 11, 0.2);
-    color: #FBBF24;
+  @apply bg-blue-500/20 text-blue-300 border border-blue-500/30;
 }
-
 .badge-status.concluido {
-    background: rgba(16, 185, 129, 0.08);
-    border: 1px solid rgba(16, 185, 129, 0.2);
-    color: #34D399;
+  @apply bg-emerald-500/20 text-emerald-400 border border-emerald-500/30;
 }
-
 .badge-status.falhou {
-    background: rgba(239, 68, 68, 0.08);
-    border: 1px solid rgba(239, 68, 68, 0.2);
-    color: #F87171;
+  @apply bg-rose-500/20 text-rose-400 border border-rose-500/30;
 }
 
-/* Spinner de Carregamento nos Badges */
 .spinner-status {
-    width: 12px;
-    height: 12px;
-    border: 2px solid currentColor;
-    border-top-color: transparent;
-    border-radius: 50%;
-    animation: rodar 0.8s linear infinite;
+  @apply inline-block w-4 h-4 border-2 border-slate-400/30 border-t-current rounded-full animate-spin mr-2;
 }
 
-/* Área de Downloads dos Assets WebP */
-.grupo-downloads {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+/* Tabela customizada */
+.tabela-jobs {
+  @apply w-full text-left border-collapse;
 }
-
-.link-download {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--cor-borda-glass);
-    color: var(--cor-texto-secundario);
-    padding: 0.35rem 0.7rem;
-    border-radius: 6px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    text-decoration: none;
-    transition: all 0.2s ease;
+.tabela-jobs th {
+  @apply p-4 border-b border-slate-700 text-slate-400 font-medium text-sm;
 }
-
-.link-download:hover {
-    background: var(--gradiente-primario);
-    border-color: transparent;
-    color: var(--cor-texto-primario);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
-}
-
-.icone-download {
-    font-size: 0.85rem;
-}
-
-.mensagem-erro-td {
-    font-size: 0.8rem;
-    color: #EF4444;
-    max-width: 180px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    display: block;
-    margin-top: 0.2rem;
-}
-
-/* 10. Definições de Animação Keyframes */
-@keyframes pulsar {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.15); opacity: 0.75; }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-@keyframes rodar {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-@keyframes surgir {
-    from { transform: translateY(-8px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-/* 11. Media Queries de Responsividade */
-@media (max-width: 768px) {
-    body {
-        padding: 1.5rem 1rem;
-    }
-    
-    .cabecalho-principal h1 {
-        font-size: 2rem;
-    }
-    
-    .card-glass {
-        padding: 1.5rem 1.2rem;
-    }
-
-    .cabecalho-card h2 {
-        font-size: 1.25rem;
-    }
-    
-    .flex-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-
-    .tabela-jobs th, .tabela-jobs td {
-        padding: 0.8rem;
-    }
+.tabela-jobs td {
+  @apply p-4 border-b border-slate-700/50 text-slate-200 text-sm;
 }
